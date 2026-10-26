@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alz-agent"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0", "pytest-cov"]
+catalog = ["openpyxl>=3.1"]
+rdd = ["pdfplumber>=0.10"]
+retrieval = ["rank-bm25>=0.2"]
+agent = ["anthropic>=0.30"]
+# Local HF execution via transformers (recommended Hugging Face path — fully local/offline).
+# Optional: pip install bitsandbytes  (for --hf-local-load-in-4bit)
+# Optional: pip install sentencepiece protobuf  (for some tokenizers)
+hf-local = ["transformers>=4.40", "torch>=2.0", "accelerate>=0.26"]
+# DEPRECATED: cloud inference via HF router API; not local-only; may incur costs.
+huggingface = ["openai>=1.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

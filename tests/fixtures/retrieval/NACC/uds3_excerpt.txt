@@ -1,0 +1,14 @@
+MMSE (Mini-Mental State Examination) is a brief 30-point questionnaire used to screen
+for cognitive impairment. It tests orientation, registration, attention and calculation,
+recall, and language. NACC records MMSE total score in the variable MMSE30. Scores
+range from 0 (severe impairment) to 30 (no impairment).
+
+CDR (Clinical Dementia Rating) is a numeric scale used to quantify the severity of
+symptoms of dementia. The CDR Sum of Boxes (CDRSUM) aggregates scores from six cognitive
+and functional domains: memory, orientation, judgment and problem solving, community
+affairs, home and hobbies, and personal care. CDRSUM ranges from 0 to 18; higher values
+indicate greater impairment. CDR Global (CDRGLOB) is a single summary score.
+
+NACC unified diagnostic summary (NACCUDSD) records the final clinical diagnosis:
+1 = Normal cognition, 2 = Impaired-not-MCI, 3 = MCI, 4 = All-cause dementia.
+This variable is the primary outcome label for conversion prediction studies.

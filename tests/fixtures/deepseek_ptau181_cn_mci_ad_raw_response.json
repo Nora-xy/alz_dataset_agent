@@ -1,0 +1,86 @@
+{
+  "_fixture_metadata": {
+    "captured": "2026-07-17",
+    "source": "real deepseek-chat API, mode=deepseek, plan_semantic_analysis tool call",
+    "question": "In ADNI, what are the mean cerebrospinal fluid (CSF) p-tau181 levels for Cognitively Normal (CN), Mild Cognitive Impairment (MCI), and Alzheimer's Disease (AD) groups at baseline?",
+    "observed_bug": "CN/MCI/AD all compiled to filter={} -> eligible_n=3711 (unfiltered) for all three; grounded=True, question_answered=True, semantic_grounding_passed=True despite the defect",
+    "root_cause": "each group's baseline_filters uses raw ADNI column names with operator objects (e.g. {'DXMCI': 1, 'DXAD': {'neq': 1}}) instead of the expected {'diagnosis': '<label>'} shape -- _filter_dict_for_scope() only ever reads the literal key 'diagnosis', silently ignoring everything else. C14 compared these raw dicts (which are NOT byte-identical to each other) so it never fired; the identical failure only appears in the COMPILED filter, one boundary later."
+  },
+  "raw_plan_data": {
+    "population_unit": "participant",
+    "requires_unique_participants": true,
+    "cohort_scope": "baseline",
+    "baseline_filters": {},
+    "event_filters": {},
+    "event_anchor": "baseline",
+    "time_ordering_variable": "NACCVNUM",
+    "outcome_definition": "N/A — this is a cross-sectional baseline comparison, not an outcome prediction",
+    "etiology_definition": "unspecified",
+    "diagnosis_variable": "DIAGNOSIS (clinical consensus diagnosis at baseline)",
+    "statistic_variable": "",
+    "statistic_type": "mean",
+    "denominator_definition": "For each group defined below (CN, MCI, AD), the denominator is the unique ADNI participants in that diagnostic group at their baseline (first) visit who have a non-missing CSF p-tau181 value (raw or harmonized) at that same visit.",
+    "allowed_backend_tools": ["adni_analysis_service"],
+    "known_invalid_interpretations": [
+      "NOT a count of visit rows — population_unit is participant",
+      "NOT any-visit or longitudinal analysis — cohort_scope is baseline only",
+      "NOT using NACCUDSD or NACCALZD (those are Space A NACC variables, not applicable for ADNI)",
+      "NOT including participants who converted later — baseline diagnosis only",
+      "NOT a single pooled mean across all groups — groups are separate CN, MCI, AD"
+    ],
+    "caveats": [
+      "The question says CSF p-tau181 levels. The catalog has two matching variables in the ptau181 family: ADNI.ADSP_PHC_CSF.PHC_pTau181 (csf_harmonized, harmonized Z-score) and ADNI.ADSP_PHC_CSF.pTau181_RAW (csf_raw, raw levels). Both measure CSF p-tau181 but are on different scales. The question does not specify raw vs. harmonized, so both variants should be reported separately.",
+      "The group label 'AD' is ambiguous: it could mean a clinical diagnosis of Alzheimer's disease (syndromic, as captured by DXAD=1) or it could imply etiologic AD (which ADNI does not use NACCALZD for). Since the catalog provides ADNI.DXSUM.DXAD (1=Yes) for AD diagnosis, and ADNI.DXSUM.DXMCI (1=Yes) for MCI, and CN is the absence of both, we interpret 'AD' as the syndromic clinical diagnosis of Alzheimer's disease per ADNI DXAD=1."
+    ],
+    "abstain_if_missing": [],
+    "id_space": "B",
+    "specimen": "csf",
+    "analyte": "ptau181",
+    "groups": [
+      {
+        "label": "CN (Cognitively Normal)",
+        "cohort_scope": "baseline",
+        "baseline_filters": {
+          "DXMPTR3": 1,
+          "DXMCI": {"neq": 1},
+          "DXAD": {"neq": 1}
+        },
+        "etiology_definition": "unspecified",
+        "diagnosis_variable": "DXSUM.DXMPTR3,DXSUM.DXMCI,DXSUM.DXAD"
+      },
+      {
+        "label": "MCI (Mild Cognitive Impairment)",
+        "cohort_scope": "baseline",
+        "baseline_filters": {
+          "DXMCI": 1,
+          "DXAD": {"neq": 1}
+        },
+        "etiology_definition": "unspecified",
+        "diagnosis_variable": "DXSUM.DXMCI,DXSUM.DXAD"
+      },
+      {
+        "label": "AD (Alzheimer's Disease — syndromic clinical diagnosis)",
+        "cohort_scope": "baseline",
+        "baseline_filters": {
+          "DXAD": 1
+        },
+        "etiology_definition": "unspecified",
+        "diagnosis_variable": "DXSUM.DXAD"
+      }
+    ],
+    "variable_selections": [
+      {
+        "variable_id": "ADNI.ADSP_PHC_CSF.pTau181_RAW",
+        "specimen": "csf",
+        "analyte": "ptau181",
+        "variant_label": "csf_raw"
+      },
+      {
+        "variable_id": "ADNI.ADSP_PHC_CSF.PHC_pTau181",
+        "specimen": "csf",
+        "analyte": "ptau181",
+        "variant_label": "csf_harmonized"
+      }
+    ]
+  }
+}

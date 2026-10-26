@@ -1,0 +1,142 @@
+# Data-path configuration for the Dataset Expert Agent.
+# All paths are relative to the project root (alz_dataset_agent/).
+
+nacc:
+  data_csv: "NACC/investigator_nacc70.csv"
+  rdd_pdf: "NACC/uds3-rdd.pdf"  # parsed by P1 (nacc_rdd_parser) to enrich concept/value_coding/description
+  modality_map: "config/nacc_modality_map.yaml"
+
+adni:
+  # Root of the ADNI LONI download. All datadic_glob / adni_data_files patterns
+  # below are resolved relative to this directory via
+  # catalog.adni_parser.resolve_latest_snapshot(), which picks the newest
+  # dated snapshot matching each glob pattern. A researcher with their own
+  # ADNI Data Use Agreement can point this at their own LONI export (using
+  # LONI's own default per-category folder layout) without renaming any
+  # files or hand-editing a path per table.
+  base_dir: "ADNI"
+  datadic_glob: "1. Start Here/Quick_Start/DATADIC_*.csv"
+  # Only ingest dictionary entries for tables we have locally.
+  local_tables:
+    - ADAS
+    - CDR
+    - DXSUM
+    - MMSE
+    - MOCA
+    - FAMHXPAR
+    - FAMHXSIB
+    - ADSP_PHC_COGN
+    - ADSP_PHC_CSF
+    - ADSP_PHC_PLASMA
+    - ADSP_PHC_T1_FS
+    # P0 expansion (2026-07-15 LONI download) — see docs/CURRENT_STATUS.md
+    - PTDEMOG
+    - FAQ
+    - NEUROBAT
+    - BLCHANGE
+    - UCSFFSX7
+    - MRIMETA
+    - MRI3META
+    - AMYMETA
+    - AV45META
+    - TAUMETA
+    - UCBERKELEY_AMY_6MM
+    - UCBERKELEY_TAU_6MM
+    - UPENN_PLASMA_FUJIREBIO_QUANTERIX
+    - UPENNBIOMK_MASTER
+    - UPENNBIOMK_ROCHE_ELECSYS
+    - APOERES
+    - ARM
+    - VISITS
+    - ROSTER
+    - REGISTRY
+    - ALIQUOT_COUNT
+    - BIOMARK
+    - LABDATA
+    - LABTESTS
+
+adsp_phc:
+  base_dir: "ADSP-PHC-122024-investigator"
+  release_version: "R3_Dec2024"
+  # Maps modality enum value -> subfolder name(s) containing the DD xlsx
+  modality_dirs:
+    cognition:       ["Cognition"]
+    fluid_biomarker: ["Biomarker"]
+    mri:             ["Imaging_T1", "Imaging_FLAIR", "Imaging_DTI"]
+    pet:             ["Imaging_PET"]
+    neuropath:       ["Neuropath"]
+    vascular:        ["Vascular_Risk"]
+
+catalog:
+  leakage_rules: "src/alz_agent/catalog/rules/leakage_rules.yaml"
+  persisted_json: "outputs/catalog.json"
+
+outputs:
+  cohort_maps: "outputs/cohort_maps"
+
+# Backend data-file paths (used by LocalDataBackend; not for catalog ingestion).
+backend:
+  # ADSP-PHC subject-level data CSVs — one entry per modality → list of files.
+  # A participant is present in a modality if their NACCID appears in ANY file for that modality.
+  adsp_phc_data_files:
+    cognition:
+      - "ADSP-PHC-122024-investigator/Cognition/NACC_ADSP_PHC_Cognition_2024.csv"
+    fluid_biomarker:
+      - "ADSP-PHC-122024-investigator/Biomarker/NACC_ADSP_PHC_Biomarker_2024.csv"
+    mri:
+      - "ADSP-PHC-122024-investigator/Imaging_T1/NACC_ADSP_PHC_T1_Freesurfer_2024.csv"
+      - "ADSP-PHC-122024-investigator/Imaging_T1/NACC_ADSP_PHC_T1_MUSE_2024.xlsx"
+      - "ADSP-PHC-122024-investigator/Imaging_FLAIR/NACC_ADSP_PHC_FLAIR_2024.csv"
+      - "ADSP-PHC-122024-investigator/Imaging_DTI/NACC_ADSP_PHC_DTI_2024.csv"
+    pet:
+      - "ADSP-PHC-122024-investigator/Imaging_PET/NACC_ADSP_PHC_Amyloid_Simple_2024.csv"
+      - "ADSP-PHC-122024-investigator/Imaging_PET/NACC_ADSP_PHC_Amyloid_Detailed_2024.csv"
+      - "ADSP-PHC-122024-investigator/Imaging_PET/NACC_ADSP_PHC_Tau_Simple_2024.csv"
+      - "ADSP-PHC-122024-investigator/Imaging_PET/NACC_ADSP_PHC_Tau_Detailed_2024.csv"
+    neuropath:
+      - "ADSP-PHC-122024-investigator/Neuropath/NACC_ADSP_PHC_Neuropath_2024.csv"
+    vascular:
+      - "ADSP-PHC-122024-investigator/Vascular_Risk/NACC_ADSP_PHC_VascularRisk_2024.csv"
+
+  # ADNI subject-level data files (Space B). Values are glob patterns relative
+  # to adni.base_dir (see comment above) — NOT exact filenames — resolved via
+  # catalog.adni_parser.resolve_latest_snapshot() at both catalog-build time
+  # (catalog/builder.py) and query time (backend/local_backend.py).
+  adni_data_files:
+    CDR:             "5. Assessments/Neuropsychological/CDR_*.csv"
+    DXSUM:           "5. Assessments/Diagnosis/DXSUM_*.csv"
+    MMSE:            "5. Assessments/Neuropsychological/MMSE_*.csv"
+    MOCA:            "5. Assessments/Neuropsychological/MOCA_*.csv"
+    ADAS:            "5. Assessments/Neuropsychological/ADAS_*.csv"
+    FAMHXPAR:        "14. Subject Characteristics/Subject_Characteristics/FAMHXPAR_*.csv"
+    FAMHXSIB:        "14. Subject Characteristics/Subject_Characteristics/FAMHXSIB_*.csv"
+    ADSP_PHC_COGN:   "4. ADSP PHC/ADSP_PHC/ADSP_PHC_COGN_*.csv"
+    ADSP_PHC_CSF:    "4. ADSP PHC/ADSP_PHC/ADSP_PHC_CSF_*.csv"
+    ADSP_PHC_DEMODX: "4. ADSP PHC/ADSP_PHC/ADSP_PHC_DEMODX_*.csv"
+    ADSP_PHC_PLASMA: "4. ADSP PHC/ADSP_PHC/ADSP_PHC_PLASMA_*.csv"
+    ADSP_PHC_T1_FS:  "4. ADSP PHC/ADSP_PHC/ADSP_PHC_T1_FS_*.csv"
+    # P0 expansion (2026-07-15 LONI download) — see docs/CURRENT_STATUS.md
+    PTDEMOG:         "14. Subject Characteristics/Subject_Characteristics/PTDEMOG_*.csv"
+    FAQ:             "5. Assessments/Neuropsychological/FAQ_*.csv"
+    NEUROBAT:        "5. Assessments/Neuropsychological/NEUROBAT_*.csv"
+    BLCHANGE:        "5. Assessments/Diagnosis/BLCHANGE_*.csv"
+    UCSFFSX7:        "10. Imaging/2. MR Image Analysis/UCSFFSX7_*.csv"
+    MRIMETA:         "10. Imaging/1. MR Image Acquisition/MRIMETA_*.csv"
+    MRI3META:        "10. Imaging/1. MR Image Acquisition/MRI3META_*.csv"
+    AMYMETA:         "10. Imaging/4. PET Image Acquisition/AMYMETA_*.csv"
+    AV45META:        "10. Imaging/4. PET Image Acquisition/AV45META_*.csv"
+    TAUMETA:         "10. Imaging/4. PET Image Acquisition/TAUMETA_*.csv"
+    UCBERKELEY_AMY_6MM: "10. Imaging/5. PET Image Analysis/UCBERKELEY_AMY_6MM_*.csv"
+    UCBERKELEY_TAU_6MM: "10. Imaging/5. PET Image Analysis/UCBERKELEY_TAU_6MM_*.csv"
+    UPENN_PLASMA_FUJIREBIO_QUANTERIX: "6. Biospecimen/Biospecimen_Results/UPENN_PLASMA_FUJIREBIO_QUANTERIX_*.csv"
+    UPENNBIOMK_MASTER: "6. Biospecimen/Biospecimen_Results/UPENNBIOMK_MASTER_*.csv"
+    UPENNBIOMK_ROCHE_ELECSYS: "6. Biospecimen/Biospecimen_Results/UPENNBIOMK_ROCHE_ELECSYS_*.csv"
+    APOERES:         "6. Biospecimen/Biospecimen_Results/APOERES_*.csv"
+    BIOMARK:         "6. Biospecimen/Biospecimen_Results/BIOMARK_*.csv"
+    ALIQUOT_COUNT:   "6. Biospecimen/Biosample_Inventory/ALIQUOT_COUNT_*.csv"
+    LABDATA:         "6. Biospecimen/Lab_Collection_Procedures/LABDATA_*.csv"
+    LABTESTS:        "6. Biospecimen/Lab_Collection_Procedures/LABTESTS_*.csv"
+    ARM:             "8. Enrollment/Enrollment/ARM_*.csv"
+    VISITS:          "8. Enrollment/Enrollment/VISITS_*.csv"
+    ROSTER:          "8. Enrollment/Enrollment/ROSTER_*.csv"
+    REGISTRY:        "8. Enrollment/Enrollment/REGISTRY_*.csv"

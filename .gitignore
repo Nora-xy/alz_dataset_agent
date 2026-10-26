@@ -1,0 +1,44 @@
+# ── IRB-protected research data (never commit) ──────────────────────────────
+# Leading / anchors to project root — does NOT exclude tests/fixtures/retrieval/NACC/
+/NACC/
+/ADNI/
+/ADNI_partial/
+/ADSP-PHC-122024-investigator/
+
+# ── Generated outputs ────────────────────────────────────────────────────────
+outputs/
+retrieval_notes/
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# ── Test / coverage ──────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Retired provider-specific project files ──────────────────────────────────
+/.claude/
+/CLAUDE.md
+
+# ── Cluster / editor artifacts ───────────────────────────────────────────────
+slurm_logs/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local logs and historical prompt notebook
+/logs/
+/stage1_claude_code_prompts_2.md
+
+# Local secrets and virtual environments
+.venv/
+.env
+.env.*
+!.env.example

@@ -1,0 +1,110 @@
+# NACC UDS3 variable → modality mapping.
+# Patterns are Python regexes applied to the column name; first match wins.
+# If no pattern matches, modality defaults to "other" and the variable is
+# logged in the build report for human review.
+#
+# Modality values must match Modality enum:
+#   cognition | vascular | mri | pet | fluid_biomarker | neuropath | demographic | other
+
+modality_patterns:
+
+  # ── Admin / identifier columns ──────────────────────────────────────────
+  - pattern: "^(NACCID|NACCADC|PACKET|FORMVER|VISITMO|VISITDAY|VISITYR|NACCVNUM|NACCAVST|NACCNVST|NACCDAYS|NACCFDYS|NACCCORE|NACCREAS|NACCREFR)$"
+    modality: other
+
+  # ── Demographics (UDS Forms A1, A3) ─────────────────────────────────────
+  - pattern: "^(BIRTHMO|BIRTHYR|SEX|HISPANIC|HISPOR|HISPORX|RACE|RACEX|RACESEC|RACESECX|RACETER|RACETERX|PRIMLANG|PRIMLANX|EDUC|HANDED|RESIDENC|ZIP|NACCAGE|NACCNIHR|MARISTAT|LIVSIT|INDEPEND|RESIDENC|REFER)$"
+    modality: demographic
+
+  - pattern: "^(NPSEX|NACCNPSEX)$"
+    modality: demographic
+
+  # ── Diagnosis / clinical classification (Form D1) — outcome-defining ────
+  - pattern: "^(NACCUDSD|NACCCBD|NACCC1|NACCC2|WHODIDDX|DXMETHOD|FTLDEVAL|FTLDMO|FTLDMOIF|FTLDNOS|NACCNORM|NACCMCI|NACCDEM|NACCELUC|NACCTMCI|NACCALZD|NACCALZP|NACCPPA|NACCBVFT|NACCNPPA|NACCPPAS|NACCBVFE|NACCFTDM|NACCPSP|NACCCBD2|NACCDLBP|NACCDLBE|NACCPARK|NACCAMS|NACCPRIM|NACCETHY|NACCETPR)$"
+    modality: other
+
+  # ── Cognitive assessments (Forms B4–B9, C1–C2) ──────────────────────────
+  - pattern: "^(CDRSUM|CDRGLOB|CDRLANG|CDRORIENT|CDRMEMORY|CDRJUDGE|CDRSOCIO|CDRHOME|CDRCARE)$"
+    modality: cognition
+
+  - pattern: "^(MMSE|MMSECOMP|MMSELOC|MMSELAN|MMSELANX|MMSEVIS|MMSEHEAR|MMSERES|MMSEORDA|MMSEORLO|MMSEBALL|MMSEHOUSE|MMSECAT|MMSE3WRD|MMSE3RC|MMSEBLOK|MMSENWRD|MMSEREAD|MMSEWRIT|MMSE1WRD|MMSE30|NACCMMSE)$"
+    modality: cognition
+
+  - pattern: "^MOCA.*"
+    modality: cognition
+
+  - pattern: "^(TRAILA|TRAILB|TRAILALI|TRAILANI|TRAILBLE|TRAILBLI)$"
+    modality: cognition
+
+  - pattern: "^(ANIMALS|VEG|BOSTON|BNTSC|BNTINTR|BNTCRT|BNTCRTP|BNTERR|BNTERRP|CATANI|CATFLU|CFLANI|CFLANX)$"
+    modality: cognition
+
+  - pattern: "^(CRAFTDVT|CRAFTDRE|CRAFTFAC|CRAFTURS|CRAFTVRS|CRAFTCUE)$"
+    modality: cognition
+
+  - pattern: "^(UDSBENTC|UDSBENTD|UDSBENRS|UDSBENAS)$"
+    modality: cognition
+
+  - pattern: "^(UDSVERFC|UDSVERFN|UDSVERNF|UDSVERLC|UDSVERLN|UDSVERNL|UDSVERLR|UDSVERSL|UDSVERFP)$"
+    modality: cognition
+
+  - pattern: "^(DIGFORCT|DIGFORSL|DIGBACCT|DIGBACLS)$"
+    modality: cognition
+
+  - pattern: "^(AVLTSS|AVLT|REY|DSPN|DSPB)$"
+    modality: cognition
+
+  - pattern: "^(NPIQ|NPIQINF|NPIQINFX|NPISCORE|COG|COGREL|COGORI|COGLANE|COGSPA|COGVIS|COGLOC|COGCOMP|COGOTHR|COGOTHRX|COGOTH).*"
+    modality: cognition
+
+  - pattern: "^(NACCAVLT|NACCAVSS|NACCTMSE)$"
+    modality: cognition
+
+  # ── Functional / ADL assessments ────────────────────────────────────────
+  - pattern: "^(FAQ|FAQFINAN|FAQFORM|FAQSHOP|FAQGAME|FAQBEVG|FAQMEAL|FAQEVENT|FAQTV|FAQREM|FAQTRAVL|NACCFAQ)$"
+    modality: cognition
+
+  # ── Vascular / cardiovascular risk (Form B8 exam, A5 health history) ────
+  - pattern: "^(CVDI|CVDIMAG1|CVDIMAG2|CVDIMAG3|CVHATT|CVAFIB|CVANGIO|CVBYPASS|CVPACE|CVCHF|CVOTHR|CVOTHRX)$"
+    modality: vascular
+
+  - pattern: "^(HYPERTEN|HYPERCHO|DIABETES|B12DEF|THYROID|INCONTU|INCONTF|PVD|ARTH|ARTHRIT|ARTHTYPE|ARTHTYPX|ARTHUPEX|ARTHLOEX|ARTHJTS|ARTHJTO|ARTHOTHR|ARTHOTHX)$"
+    modality: vascular
+
+  - pattern: "^(SMOKYRS|PACKSPER|ALCOHOL|TOBAC30|TOBAC100|ALCFREQ|ALCDRINKS)$"
+    modality: vascular
+
+  - pattern: "^(HEART|STROKE|TRTBIOMARK|BMI|NACCBMI|NACCBPSY|NACCBPDI|HEIGHT|WEIGHT)$"
+    modality: vascular
+
+  - pattern: "^(TREST|TRESTFAC|TRESTFAX|TRESTRHD|TRESTRHX|TRESTLHD|TRESTLHX|TRESTRFT|TRESTRFX|TRESTLFT|TRESTLFX)$"
+    modality: vascular
+
+  - pattern: "^(RIGID|RIGDNECK|RIGDNEX|RIGDUPRT|RIGDUPRX|RIGDUPLF|RIGDUPLX|RIGDLORT|RIGDLORX|RIGDLOLF|RIGDLOLX)$"
+    modality: vascular
+
+  - pattern: "^(RESP|RESPVAL|RESPHEAR|RESPDIST|RESPINTR|RESPAGGR|RESPECHO|RESPDIS2|RESPCHO2)$"
+    modality: vascular
+
+  - pattern: "^(HAND|HANDMOVR|HANDMVRX|HANDMOVL|HANDMVLX|HANDDROPR|HANDDROPX|HANDDROPL|HANDDRLX)$"
+    modality: vascular
+
+  # ── Neuropathology (Form NP) ─────────────────────────────────────────────
+  - pattern: "^NP.*"
+    modality: neuropath
+
+  # ── Fluid biomarkers / CSF ──────────────────────────────────────────────
+  - pattern: "^(CSF|CSFTAU|CSFABETA|CSFALB|CSFTTAU|CSFPTAU|AB42|ABUSOTHR|ABUSX|ABRUPT|TAUPETAD|NACCCSFP)$"
+    modality: fluid_biomarker
+
+  # ── Genetics ────────────────────────────────────────────────────────────
+  - pattern: "^(NGDS|APOE|NACCAPOE|NACCNE4S).*"
+    modality: other
+
+  # ── Medications (usually other) ─────────────────────────────────────────
+  - pattern: "^DRUG.*"
+    modality: other
+
+  # ── Psychiatric history ─────────────────────────────────────────────────
+  - pattern: "^(BIPOLDX|PTSDDX|PTSDDXIF|DEPD|DEPRELEM|ANXIETY|OCD|NACCPSY|NACCBPSY|SCHIZOP|EPILEP|POLIO|ENCEPH|MENINGIT|TYPEMCI)$"
+    modality: other

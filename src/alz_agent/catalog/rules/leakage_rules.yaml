@@ -1,0 +1,166 @@
+# Leakage rules for the Dataset Expert Agent catalog.
+# Human-editable; version-controlled.
+#
+# Each rule:
+#   variable_pattern:  Python regex matched against the variable's raw_code
+#                      (case-sensitive; anchored with ^ and $ if you want exact match)
+#   source_filter:     optional list of SourceDataset values; omit to match all sources
+#   tag:               DIAGNOSIS_DEFINING | CIRCULAR | HARMONIZATION_FIT_SCOPE
+#   reason:            human-readable explanation stored on the CatalogEntry
+#
+# Rules are evaluated in order; the FIRST matching rule wins.
+# Variables that match no rule receive [LeakageTag.NONE].
+
+rules:
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # DIAGNOSIS-DEFINING  (direct outcome labels or clinical classifications
+  #                      that subsume or are causally downstream of diagnosis)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  # NACC unified diagnostic summary — THE primary outcome label for NACC
+  - variable_pattern: "^NACCUDSD$"
+    tag: DIAGNOSIS_DEFINING
+    reason: "NACC unified diagnostic summary (1=Normal/2=Impaired-not-MCI/3=MCI/4=Dementia) — the primary outcome label; always exclude from features"
+
+  # NACC clinical diagnostic designation
+  - variable_pattern: "^NACCCBD$"
+    tag: DIAGNOSIS_DEFINING
+    reason: "NACC clinical diagnostic designation field — encodes clinician-assigned syndrome"
+
+  # NACC syndrome fields
+  - variable_pattern: "^NACC(NPSEX|NPSYN|UDSD|DIAG|NORM|MCI|DEM|ELUC|TMCI|ALZD|ALZP|PPA|BVFT|NPPA|PPAS|BVFE|FTDM|PSP|CBD2|DLBP|DLBE|PARK|AMS|PRIM|ETHY|ETPR)$"
+    tag: DIAGNOSIS_DEFINING
+    reason: "NACC syndrome/etiology field — encodes or derives from clinician diagnosis"
+
+  # NACC cognitive/functional status summary (C1, C2 from Form D)
+  - variable_pattern: "^NACCC[12]$"
+    tag: DIAGNOSIS_DEFINING
+    reason: "NACC cognitive status summary (Form D) — final clinician synthesis that determines diagnostic category"
+
+  # NACC neuropathology diagnosis fields
+  - variable_pattern: "^NPPDX[A-Z]$"
+    tag: DIAGNOSIS_DEFINING
+    reason: "NACC neuropathology final diagnosis field — post-mortem confirmed diagnosis"
+
+  # ADNI diagnosis summary table
+  - variable_pattern: "^DXCURREN$"
+    source_filter: [ADNI]
+    tag: DIAGNOSIS_DEFINING
+    reason: "ADNI current diagnosis (1=NL, 2=MCI, 3=AD) — primary outcome label for ADNI"
+
+  - variable_pattern: "^DXCONV$"
+    source_filter: [ADNI]
+    tag: DIAGNOSIS_DEFINING
+    reason: "ADNI conversion/reversion indicator — directly encodes the conversion outcome"
+
+  - variable_pattern: "^DXCONTYP$"
+    source_filter: [ADNI]
+    tag: DIAGNOSIS_DEFINING
+    reason: "ADNI conversion type — derived from DXCONV; encodes transition direction"
+
+  - variable_pattern: "^DXREV$"
+    source_filter: [ADNI]
+    tag: DIAGNOSIS_DEFINING
+    reason: "ADNI reversion type — derived from DXCONV"
+
+  - variable_pattern: "^DX(NORM|MCI|AD|PARK|DEM|OTHER|CONV|DEMENT|PREV).*"
+    source_filter: [ADNI]
+    tag: DIAGNOSIS_DEFINING
+    reason: "ADNI DXSUM diagnosis flag — encodes or is derived from the clinical diagnosis"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # CIRCULAR  (measures that are highly collinear with, or defined in terms of,
+  #            the diagnosis outcome, even if not the label itself)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  - variable_pattern: "^CDRGLOB$"
+    tag: CIRCULAR
+    reason: "CDR Global score — global dementia severity; its computation includes the same clinical judgment that drives the diagnosis label"
+
+  - variable_pattern: "^CDRSUM$"
+    tag: CIRCULAR
+    reason: "CDR Sum of Boxes — aggregates six CDR domain ratings; highly collinear with AD/MCI outcome"
+
+  - variable_pattern: "^(CDRORIENT|CDRMEMORY|CDRJUDGE|CDRSOCIO|CDRHOME|CDRCARE|CDRLANG)$"
+    tag: CIRCULAR
+    reason: "CDR domain sub-score — component of CDR that feeds CDR Global and CDR Sum; collinear with outcome"
+
+  - variable_pattern: "^NACCGDS$"
+    tag: CIRCULAR
+    reason: "NACC global dementia score — summary clinician rating correlated with diagnosis"
+
+  - variable_pattern: "^FTLDEVAL$"
+    tag: CIRCULAR
+    reason: "FTLD evaluation field — encodes clinician's FTLD syndromal assessment"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # HARMONIZATION_FIT_SCOPE  (ADSP-PHC variables whose harmonization transform
+  #                           was estimated on the full dataset, which may
+  #                           include outcome-correlated strata)
+  # ──────────────────────────────────────────────────────────────────────────
+
+  # Cognition composites (GMM fit on full ADSP-PHC cohort)
+  - variable_pattern: "^PHC_MEM.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Memory composite: Gaussian Mixture Model harmonization fit on full cohort including outcome-stratified groups"
+
+  - variable_pattern: "^PHC_EXF.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Executive Function composite: same GMM harmonization scope issue"
+
+  - variable_pattern: "^PHC_LAN.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Language composite: same GMM harmonization scope issue"
+
+  - variable_pattern: "^PHC_VS.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Visuospatial composite: same GMM harmonization scope issue"
+
+  - variable_pattern: "^PHC_ATT.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Attention composite: same GMM harmonization scope issue"
+
+  # CSF biomarker Z-scores (GMM fit on full biomarker cohort)
+  - variable_pattern: "^PHC_AB42$"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC AB42 Z-score: GMM harmonization fit on full biomarker cohort including AT-classified participants"
+
+  - variable_pattern: "^PHC_Tau$"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Tau Z-score: same GMM harmonization scope issue"
+
+  - variable_pattern: "^PHC_pTau$"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC pTau Z-score: same GMM harmonization scope issue"
+
+  # Derived classification / scores from harmonized Z-scores
+  - variable_pattern: "^AT_class$"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "AT class (A+/- T+/-): derived from PHC Z-scores; inherits harmonization fit scope and is partially diagnostic"
+
+  - variable_pattern: "^PHC_SCeNS.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "SCeNS score: SymmetricCentipolar Normalized score derived from PHC Z-scores; inherits harmonization fit scope"
+
+  # PET harmonized variables
+  - variable_pattern: "^PHC_CENTILOID.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC Centiloid: PET amyloid load normalized across tracers; harmonization fit scope applies"
+
+  # T1 harmonized variables
+  - variable_pattern: "^PHC_DLICV.*"
+    source_filter: [ADSP_PHC]
+    tag: HARMONIZATION_FIT_SCOPE
+    reason: "PHC DLICV: intracranial volume harmonized across scanner batches; harmonization fit scope applies"

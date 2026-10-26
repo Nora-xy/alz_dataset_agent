@@ -1,0 +1,12 @@
+# Normalize line endings: store LF in repo, checkout appropriate for OS.
+# This prevents Windows CRLF from causing test failures on DCC (Linux).
+* text=auto eol=lf
+
+# Binary files — no line-ending conversion
+# Note: *.csv is intentionally NOT listed here.
+# Test fixture CSVs (tests/fixtures/) are small text files — keeping them as
+# text allows readable diffs. The large IRB data CSVs are excluded by .gitignore.
+*.xlsx binary
+*.pdf binary
+*.png binary
+*.jpg binary

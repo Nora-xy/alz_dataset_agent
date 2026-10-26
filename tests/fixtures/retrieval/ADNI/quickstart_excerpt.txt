@@ -1,0 +1,12 @@
+The Alzheimer's Disease Neuroimaging Initiative (ADNI) is a multisite longitudinal study
+designed to develop clinical, imaging, genetic, and biochemical biomarkers for the early
+detection and tracking of Alzheimer's disease.
+
+Participants are classified as cognitively normal (CN), mild cognitive impairment (MCI),
+or dementia at each visit. The primary diagnosis variable is stored in the DXSUM table
+as DIAGNOSIS (1=CN, 2=MCI, 3=Dementia). Participant IDs use RID and PTID.
+
+The CDR (Clinical Dementia Rating) is collected at each visit. ADNI also administers the
+MMSE, ADAS-Cog, MoCA, and other neuropsychological assessments. Longitudinal MRI and
+PET imaging are collected for a subset of participants. Amyloid PET and tau PET scans
+follow tracer-specific acquisition protocols.
